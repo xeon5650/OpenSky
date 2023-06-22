@@ -9,55 +9,88 @@ import requests
 import pandas as pd
 
 
-class FlightInfo(object):
-    __slots__ = ["DepartureAirport_ICAO", "ArrivalAirport_ICAO",
-                 "DepartureTime", "ArrivalTime", "DISTANCE",
-                 "DepartureAirport_IATA", "ArrivalAirport_IATA", "Callsign"]
+class Flights(object):
+    def __init__(self, flights):
+        self.flights = flights
+        self.__index = 0
 
-    def __init__(self, DepartureAirport_ICAO=None, ArrivalAirport_ICAO=None,
-                 DepartureTime=None, ArrivalTime=None, DISTANCE=None, DepartureAirport_IATA=None,
-                 ArrivalAirport_IATA=None, Callsign=None):
-        self.DepartureAirport_ICAO = DepartureAirport_ICAO
-        self.ArrivalAirport_ICAO = ArrivalAirport_ICAO
-        self.DepartureTime = DepartureTime
-        self.ArrivalTime = ArrivalTime
-        self.DISTANCE = DISTANCE
-        self.DepartureAirport_IATA = DepartureAirport_IATA
-        self.ArrivalAirport_IATA = ArrivalAirport_IATA
-        self.Callsign = Callsign
+    def __len__(self):
+        return len(self.flights)
 
-    def __repr__(self):
-        attrib_value = {"DepartureAirport_ICAO": self.DepartureAirport_ICAO,
-                        "ArrivalAirport_ICAO": self.ArrivalAirport_ICAO,
-                        "DepartureTime": self.DepartureTime,
-                        "ArrivalTime": self.ArrivalTime,
-                        "DISTANCE": self.DISTANCE,
-                        "DepartureAirport_IATA": self.DepartureAirport_IATA,
-                        "ArrivalAirport_IATA": self.ArrivalAirport_IATA,
-                        "Callsign": self.Callsign}
-        return str(attrib_value)
+    def __iter__(self):
+        return self.FlightDataIterator(self)
 
-    def __dict__(self):
-        attrib_value = {"DepartureAirport_ICAO": [self.DepartureAirport_ICAO],
-                        "ArrivalAirport_ICAO": [self.ArrivalAirport_ICAO],
-                        "DepartureTime": [self.DepartureTime],
-                        "ArrivalTime": [self.ArrivalTime],
-                        "DISTANCE": [self.DISTANCE],
-                        "DepartureAirport_IATA": [self.DepartureAirport_IATA],
-                        "ArrivalAirport_IATA": [self.ArrivalAirport_IATA],
-                        "Callsign": [self.Callsign]}
-        return attrib_value
+    class FlightsData:
+        __slots__ = ["Index", "DepartureAirport_ICAO", "ArrivalAirport_ICAO",
+                     "DepartureTime", "ArrivalTime",
+                     "DISTANCE", "DepartureAirport_IATA",
+                     "ArrivalAirport_IATA", "Callsign"]
 
-    def __str__(self):
-        attrib_value = {"DepartureAirport_ICAO": self.DepartureAirport_ICAO,
-                        "ArrivalAirport_ICAO": self.ArrivalAirport_ICAO,
-                        "DepartureTime": self.DepartureTime,
-                        "ArrivalTime": self.ArrivalTime,
-                        "DISTANCE": self.DISTANCE,
-                        "DepartureAirport_IATA": self.DepartureAirport_IATA,
-                        "ArrivalAirport_IATA": self.ArrivalAirport_IATA,
-                        "Callsign": self.Callsign}
-        return str(attrib_value)
+        def __init__(self, DepartureAirport_ICAO=None, ArrivalAirport_ICAO=None,
+                     DepartureTime=None, ArrivalTime=None, DISTANCE=None, DepartureAirport_IATA=None,
+                     ArrivalAirport_IATA=None, Callsign=None):
+            self.DepartureAirport_ICAO = DepartureAirport_ICAO
+            self.ArrivalAirport_ICAO = ArrivalAirport_ICAO
+            self.DepartureTime = DepartureTime
+            self.ArrivalTime = ArrivalTime
+            self.DISTANCE = DISTANCE
+            self.DepartureAirport_IATA = DepartureAirport_IATA
+            self.ArrivalAirport_IATA = ArrivalAirport_IATA
+            self.Callsign = Callsign
+
+        def __repr__(self):
+            attrib_value = {"DepartureAirport_ICAO": self.DepartureAirport_ICAO,
+                            "ArrivalAirport_ICAO": self.ArrivalAirport_ICAO,
+                            "DepartureTime": self.DepartureTime,
+                            "ArrivalTime": self.ArrivalTime,
+                            "DISTANCE": self.DISTANCE,
+                            "DepartureAirport_IATA": self.DepartureAirport_IATA,
+                            "ArrivalAirport_IATA": self.ArrivalAirport_IATA,
+                            "Callsign": self.Callsign}
+            return str(attrib_value)
+
+        def __dict__(self):
+            attrib_value = {"DepartureAirport_ICAO": [self.DepartureAirport_ICAO],
+                            "ArrivalAirport_ICAO": [self.ArrivalAirport_ICAO],
+                            "DepartureTime": [self.DepartureTime],
+                            "ArrivalTime": [self.ArrivalTime],
+                            "DISTANCE": [self.DISTANCE],
+                            "DepartureAirport_IATA": [self.DepartureAirport_IATA],
+                            "ArrivalAirport_IATA": [self.ArrivalAirport_IATA],
+                            "Callsign": [self.Callsign]}
+            return attrib_value
+
+        def __str__(self):
+            attrib_value = {"DepartureAirport_ICAO": self.DepartureAirport_ICAO,
+                            "ArrivalAirport_ICAO": self.ArrivalAirport_ICAO,
+                            "DepartureTime": self.DepartureTime,
+                            "ArrivalTime": self.ArrivalTime,
+                            "DISTANCE": self.DISTANCE,
+                            "DepartureAirport_IATA": self.DepartureAirport_IATA,
+                            "ArrivalAirport_IATA": self.ArrivalAirport_IATA,
+                            "Callsign": self.Callsign}
+            return str(attrib_value)
+
+    class FlightDataIterator:
+
+        def __len__(self):
+            return len(self.__FlightData)
+
+        def __init__(self, FlightData):
+            self.__FlightData = FlightData
+            self.__index = 0
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if self.__index >= len(self.__FlightData):
+                raise StopIteration
+
+            # возвращаем следующий цвет
+            color = self.__FlightData.flights[self.__index]
+            self.__index += 1
+            return color
 
     def to_pandas_df(self):
         return pd.DataFrame(self.__dict__())
@@ -96,42 +129,45 @@ class OpenSkyApi(object):
             "/flights/arrival", params=params
         )
 
-    def __calc_distanse(self, dep_icao, arr_icao):
-        coordinates = self._airports
-        try:
-            from_lat = coordinates[coordinates['ICAO'] == dep_icao]['Latitude'].tolist()[0]
-            from_lon = coordinates[coordinates['ICAO'] == dep_icao]['Longitude'].tolist()[0]
-            to_lat = coordinates[coordinates['ICAO'] == arr_icao]['Latitude'].tolist()[0]
-            to_lon = coordinates[coordinates['ICAO'] == arr_icao]['Longitude'].tolist()[0]
+    # def __calc_distanse(self):
+    #     for i in enumerate(self):
+    #
+    #
+    #     coordinates = self._airports
+    #     try:
+    #         from_lat = coordinates[coordinates['ICAO'] == dep_icao]['Latitude'].tolist()[0]
+    #         from_lon = coordinates[coordinates['ICAO'] == dep_icao]['Longitude'].tolist()[0]
+    #         to_lat = coordinates[coordinates['ICAO'] == arr_icao]['Latitude'].tolist()[0]
+    #         to_lon = coordinates[coordinates['ICAO'] == arr_icao]['Longitude'].tolist()[0]
+    #
+    #         distance = gd((round(float(from_lat), 3), round(float(from_lon), 3)),
+    #                       (round(float(to_lat), 3), round(float(to_lon), 3))).km
+    #         distance = round(float(distance), 3)
+    #         return distance
+    #     except Exception as e:
+    #         print(e)
 
-            distance = gd((round(float(from_lat), 3), round(float(from_lon), 3)),
-                          (round(float(to_lat), 3), round(float(to_lon), 3))).km
-            distance = round(float(distance), 3)
-            return distance
-        except Exception as e:
-            print(e)
-
-    def get_departures_by_airport(self, airport, begin, end):
-
-        if begin >= end:
-            raise ValueError("The end daytame must be greater than begin.")
-        if end - begin > 604800:
-            raise ValueError("The time interval must be smaller than 7 days.")
-
-        params = {"airport": airport, "begin": begin, "end": end}
-        flights_json = self.__get_flights_json(operation="/flights/departure", params=params)
-        flights = []
-        if flights_json is not None:
-            for flight in flights_json:
-                fl = FlightInfo(DepartureAirport_ICAO=flight['estDepartureAirport'],
-                                ArrivalAirport_ICAO=flight['estArrivalAirport'],
-                                DepartureTime=flight['firstSeen'],
-                                ArrivalTime=flight['lastSeen'],
-                                Callsign=flight['Callsign']
-                                )
-                flights.append(fl)
-            return fl
-        return None
+    # def get_departures_by_airport(self, airport, begin, end):
+    #
+    #     if begin >= end:
+    #         raise ValueError("The end daytame must be greater than begin.")
+    #     if end - begin > 604800:
+    #         raise ValueError("The time interval must be smaller than 7 days.")
+    #
+    #     params = {"airport": airport, "begin": begin, "end": end}
+    #     flights_json = self.__get_flights_json(operation="/flights/departure", params=params)
+    #     flights = []
+    #     if flights_json is not None:
+    #         fl = FlightInfo(DepartureAirport_ICAO=[entry['estDepartureAirport'] for entry in flights],
+    #                         ArrivalAirport_ICAO=[entry['estDepartureAirport'] for entry in flights],
+    #                         DepartureTime=[entry['firstSeen'] for entry in flights],
+    #                         ArrivalTime=[entry['lastSeen'] for entry in flights],
+    #                         Callsign=[entry['callsign'] for entry in flights]
+    #                         )
+    #         return fl
+    #
+    #     else:
+    #         return None
 
     # def parse_flyghts(self):
     #     flight =
