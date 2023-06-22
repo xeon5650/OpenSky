@@ -38,14 +38,14 @@ class FlightInfo(object):
         return str(attrib_value)
 
     def __dict__(self):
-        attrib_value = {"DepartureAirport_ICAO": self.DepartureAirport_ICAO,
-                        "ArrivalAirport_ICAO": self.ArrivalAirport_ICAO,
-                        "DepartureTime": self.DepartureTime,
-                        "ArrivalTime": self.ArrivalTime,
-                        "DISTANCE": self.DISTANCE,
-                        "DepartureAirport_IATA": self.DepartureAirport_IATA,
-                        "ArrivalAirport_IATA": self.ArrivalAirport_IATA,
-                        "Callsign": self.Callsign}
+        attrib_value = {"DepartureAirport_ICAO": [self.DepartureAirport_ICAO],
+                        "ArrivalAirport_ICAO": [self.ArrivalAirport_ICAO],
+                        "DepartureTime": [self.DepartureTime],
+                        "ArrivalTime": [self.ArrivalTime],
+                        "DISTANCE": [self.DISTANCE],
+                        "DepartureAirport_IATA": [self.DepartureAirport_IATA],
+                        "ArrivalAirport_IATA": [self.ArrivalAirport_IATA],
+                        "Callsign": [self.Callsign]}
         return attrib_value
 
     def __str__(self):
@@ -59,6 +59,9 @@ class FlightInfo(object):
                         "Callsign": self.Callsign}
         return str(attrib_value)
 
+    def to_pandas_df(self):
+        return pd.DataFrame(self.__dict__())
+
 
 class OpenSkyApi(object):
     __slots__ = ['_auth', '__sess', '__base_url', '_airports']
@@ -70,8 +73,8 @@ class OpenSkyApi(object):
         self._airports = pd.read_csv('world_airports.csv')
 
     def __get_flights_json(self, operation, params):
-        r = requests.get(
-            "{0:s}{1:s}".format(self.__base_url, operation),
+        r = self.__sess.get(
+            f"{self.__base_url}{operation}",
             auth=self._auth,
             params=params,
             timeout=30,
@@ -117,9 +120,17 @@ class OpenSkyApi(object):
 
         params = {"airport": airport, "begin": begin, "end": end}
         flights_json = self.__get_flights_json(operation="/flights/departure", params=params)
-
+        flights = []
         if flights_json is not None:
-            return [FlightInfo(list(entry.values())) for entry in flights_json]
+            for flight in flights_json:
+                fl = FlightInfo(DepartureAirport_ICAO=flight['estDepartureAirport'],
+                                ArrivalAirport_ICAO=flight['estArrivalAirport'],
+                                DepartureTime=flight['firstSeen'],
+                                ArrivalTime=flight['lastSeen'],
+                                Callsign=flight['Callsign']
+                                )
+                flights.append(fl)
+            return fl
         return None
 
     # def parse_flyghts(self):
