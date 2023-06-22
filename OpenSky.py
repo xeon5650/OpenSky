@@ -9,30 +9,55 @@ import requests
 import pandas as pd
 
 
-class Flight(object):
-    keys = [
-        "icao24",
-        "firstSeen",
-        "estDepartureAirport",
-        "lastSeen",
-        "estArrivalAirport",
-        "callsign",
-        "estDepartureAirportHorizDistance",
-        "estDepartureAirportVertDistance",
-        "estArrivalAirportHorizDistance",
-        "estArrivalAirportVertDistance",
-        "departureAirportCandidatesCount",
-        "arrivalAirportCandidatesCount",
-    ]
+class FlightInfo(object):
+    __slots__ = ["DepartureAirport_ICAO", "ArrivalAirport_ICAO",
+                 "DepartureTime", "ArrivalTime", "DISTANCE",
+                 "DepartureAirport_IATA", "ArrivalAirport_IATA", "Callsign"]
 
-    def __init__(self, arr):
-        self.__dict__ = dict(zip(Flight.keys, arr))
+    def __init__(self, DepartureAirport_ICAO=None, ArrivalAirport_ICAO=None,
+                 DepartureTime=None, ArrivalTime=None, DISTANCE=None, DepartureAirport_IATA=None,
+                 ArrivalAirport_IATA=None, Callsign=None):
+        self.DepartureAirport_ICAO = DepartureAirport_ICAO
+        self.ArrivalAirport_ICAO = ArrivalAirport_ICAO
+        self.DepartureTime = DepartureTime
+        self.ArrivalTime = ArrivalTime
+        self.DISTANCE = DISTANCE
+        self.DepartureAirport_IATA = DepartureAirport_IATA
+        self.ArrivalAirport_IATA = ArrivalAirport_IATA
+        self.Callsign = Callsign
 
     def __repr__(self):
-        return f"{repr(self.__dict__)}"
+        attrib_value = {"DepartureAirport_ICAO": self.DepartureAirport_ICAO,
+                        "ArrivalAirport_ICAO": self.ArrivalAirport_ICAO,
+                        "DepartureTime": self.DepartureTime,
+                        "ArrivalTime": self.ArrivalTime,
+                        "DISTANCE": self.DISTANCE,
+                        "DepartureAirport_IATA": self.DepartureAirport_IATA,
+                        "ArrivalAirport_IATA": self.ArrivalAirport_IATA,
+                        "Callsign": self.Callsign}
+        return str(attrib_value)
+
+    def __dict__(self):
+        attrib_value = {"DepartureAirport_ICAO": self.DepartureAirport_ICAO,
+                        "ArrivalAirport_ICAO": self.ArrivalAirport_ICAO,
+                        "DepartureTime": self.DepartureTime,
+                        "ArrivalTime": self.ArrivalTime,
+                        "DISTANCE": self.DISTANCE,
+                        "DepartureAirport_IATA": self.DepartureAirport_IATA,
+                        "ArrivalAirport_IATA": self.ArrivalAirport_IATA,
+                        "Callsign": self.Callsign}
+        return attrib_value
 
     def __str__(self):
-        return pprint.pformat(self.__dict__, indent=4)
+        attrib_value = {"DepartureAirport_ICAO": self.DepartureAirport_ICAO,
+                        "ArrivalAirport_ICAO": self.ArrivalAirport_ICAO,
+                        "DepartureTime": self.DepartureTime,
+                        "ArrivalTime": self.ArrivalTime,
+                        "DISTANCE": self.DISTANCE,
+                        "DepartureAirport_IATA": self.DepartureAirport_IATA,
+                        "ArrivalAirport_IATA": self.ArrivalAirport_IATA,
+                        "Callsign": self.Callsign}
+        return str(attrib_value)
 
 
 class OpenSkyApi(object):
@@ -68,10 +93,6 @@ class OpenSkyApi(object):
             "/flights/arrival", params=params
         )
 
-        if flights_json is not None:
-            return [Flight(list(entry.values())) for entry in flights_json]
-        return None
-
     def __calc_distanse(self, dep_icao, arr_icao):
         coordinates = self._airports
         try:
@@ -98,10 +119,8 @@ class OpenSkyApi(object):
         flights_json = self.__get_flights_json(operation="/flights/departure", params=params)
 
         if flights_json is not None:
-            return [Flight(list(entry.values())) for entry in flights_json]
+            return [FlightInfo(list(entry.values())) for entry in flights_json]
         return None
 
     # def parse_flyghts(self):
     #     flight =
-
-
