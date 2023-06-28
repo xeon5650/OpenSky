@@ -1,17 +1,7 @@
 import OpenSky
 
-#
-# api = OpenSky.OpenSkyApi('Zabolotskikh','TT7.622023.')
-# p = api.get_arrivals_by_airport('KPSP',1687132800,1687219200)
-# for flight in p:
-#     flight = OpenSky.Flight(flight)
-#     print(flight)
-#
-# print(p)
+api = OpenSky.OpenSkyApi('Zabolotskikh','TT7.622023.')
+p = api.get_departures_by_airport('KLAX','2023-06-15T00:00:00Z','2023-06-22T00:00:00Z',False)
+p.to_pandas_df().to_csv('TEST.csv')
+print(p.to_pandas_df())
 
-fl = OpenSky.Flights.FlightsData(1,1,1,1,1,1,1,1)
-fl2 = OpenSky.Flights.FlightsData(1,1,1,1,1,1,1,1)
-fls = OpenSky.Flights([fl,fl2])
-
-for flight in fls:
-    print(flight)
