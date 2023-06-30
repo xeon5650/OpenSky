@@ -4,13 +4,13 @@ import datetime
 from datetime import datetime
 from geopy.distance import geodesic as gd
 import requests
-import pandas as pd
+import pandas
 
 
 class FlightData:
     """Class for store flightData"""
 
-    def __get_iata_by_icao(self, icao):
+    def __get_iata_by_icao(self, icao) -> str | None:
         """
         Search IATA code by ICAO
         :param icao: specified airport ICAO code
@@ -24,7 +24,7 @@ class FlightData:
             print("IATA not found")
             return None
 
-    def __unix_to_iso(self, unix_time):
+    def __unix_to_iso(self, unix_time) -> str:
         """
         Conver DateTime in unix to time in ISO
         :param unix_time: DateTime in Unix format
@@ -35,7 +35,7 @@ class FlightData:
 
         return iso_time
 
-    def __calc_distance(self, dep_icao, arr_icao):
+    def __calc_distance(self, dep_icao, arr_icao) -> float | None:
         """
         Calc distance between airports by their ICAO codes
         :param dep_icao: Airport icao code
@@ -64,21 +64,21 @@ class FlightData:
         Initialize Flight data object
         :param flights_json: json with flight info
         """
-        self._airports = pd.read_csv('world_airports.csv', names=['Airport ID',
-                                                                  'Name',
-                                                                  'City',
-                                                                  'Country',
-                                                                  'IATA',
-                                                                  'ICAO',
-                                                                  'Latitude',
-                                                                  'Longitude',
-                                                                  'Altitude',
-                                                                  'Timezone',
-                                                                  'DST',
-                                                                  'Tz database time zone',
-                                                                  'Type',
-                                                                  'Source'
-                                                                  ])
+        self._airports = pandas.read_csv('world_airports.csv', names=['Airport ID',
+                                                                      'Name',
+                                                                      'City',
+                                                                      'Country',
+                                                                      'IATA',
+                                                                      'ICAO',
+                                                                      'Latitude',
+                                                                      'Longitude',
+                                                                      'Altitude',
+                                                                      'Timezone',
+                                                                      'DST',
+                                                                      'Tz database time zone',
+                                                                      'Type',
+                                                                      'Source'
+                                                                      ])
         self._flights = [None] * len(flights_json)
         for flight in enumerate(flights_json, start=0):
             flights_data = FlightData.FlightObject()
@@ -95,7 +95,7 @@ class FlightData:
             flights_data.call_sign = flight[1]['callsign']
             self[flight[0]] = flights_data
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         :return: number of elements in FlightData
         """
@@ -118,7 +118,7 @@ class FlightData:
         """
         return self._flights[flight_number]
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """
         Convert FlightData to dictionary
         :return: dict
@@ -135,14 +135,26 @@ class FlightData:
                       }
         return dictionary
 
-    def to_pandas_df(self):
+    def to_pandas_df(self) -> pandas.DataFrame:
         """
         Convert FlightData to Pandas DataFrame
         :return: Pandas DataFrame
         """
-        return pd.DataFrame(self.to_dict())
+        return pandas.DataFrame(self.to_dict())
 
     class FlightObject:
+        """Class for store flightData
+        Attributes:
+            departure_airport_icao - Departure airport code in ICAO
+            arrival_airport_icao - Arrival airport code in ICAO
+            departure_time - Departure time in ISO format
+            arrival_time - Arrival time in ISO format
+            distance - Distance between departure and arrival airports
+            departure_airport_iata - Departure airport code in IATA
+            arrival_airport_iata - Arrival airport code in IATA
+            call_sign - Aircraft call sign
+        """
+
         __slots__ = ["departure_airport_icao", "arrival_airport_icao",
                      "departure_time", "arrival_time",
                      "distance", "departure_airport_iata",
@@ -152,6 +164,17 @@ class FlightData:
                      departure_time=None, arrival_time=None, distance=None,
                      departure_airport_iata=None, arrival_airport_iata=None,
                      call_sign=None):
+            """
+            Initialize FlightObject
+            :param departure_airport_icao: Departure airport code in ICAO
+            :param arrival_airport_icao: Arrival airport code in ICAO
+            :param departure_time: Departure time in ISO format
+            :param arrival_time: Arrival time in ISO format
+            :param distance: Distance between departure and arrival airports
+            :param departure_airport_iata: Departure airport code in IATA
+            :param arrival_airport_iata: Arrival airport code in IATA
+            :param call_sign: Aircraft call sign
+            """
             self.departure_airport_icao = departure_airport_icao
             self.arrival_airport_icao = arrival_airport_icao
             self.departure_time = departure_time
@@ -162,73 +185,78 @@ class FlightData:
             self.call_sign = call_sign
 
         def __repr__(self):
-            attrib_value = {"DepartureAirport_ICAO": self.departure_airport_icao,
-                            "ArrivalAirport_ICAO": self.arrival_airport_icao,
-                            "DepartureTime": self.departure_time,
-                            "ArrivalTime": self.arrival_time,
-                            "DISTANCE": self.distance,
-                            "DepartureAirport_IATA": self.departure_airport_iata,
-                            "ArrivalAirport_IATA": self.arrival_airport_iata,
-                            "Callsign": self.call_sign}
+            """Return printed representation of FlightObject"""
+            attrib_value = f"FlightObject(departure_airport_icao = {self.departure_airport_icao}," \
+                           f"arrival_airport_icao = {self.arrival_airport_icao}," \
+                           f"departure_time = {self.departure_time}," \
+                           f"arrival_time= {self.arrival_time}," \
+                           f"distance = {self.distance}," \
+                           f"departure_airport_iata = {self.departure_airport_iata}" \
+                           f"arrival_airport_iata = {self.arrival_airport_iata}," \
+                           f"call_sign = {self.call_sign})"
             return str(attrib_value)
-
-        def to_dict(self):
-            attrib_value = {"departure_airport_icao": [self.departure_airport_icao],
-                            "arrival_airport_icao": [self.arrival_airport_icao],
-                            "departure_time": [self.departure_time],
-                            "arrival_time": [self.arrival_time],
-                            "distance": [self.distance],
-                            "departure_airport_iata": [self.departure_airport_iata],
-                            "arrival_airport_iata": [self.arrival_airport_iata],
-                            "call_sign": [self.call_sign]}
-            return attrib_value
 
         def __str__(self):
-            attrib_value = {f"departure_airport_icao - {self.departure_airport_icao}",
-                            f"arrival_airport_icao - {self.arrival_airport_icao}",
-                            f"departure_time - {self.departure_time}",
-                            f"arrival_time - {self.arrival_time}",
-                            f"distance - {self.distance}",
-                            f"departure_airport_iata - {self.departure_airport_iata}",
-                            f"arrival_airport_iata - {self.arrival_airport_iata}",
-                            f"call_sign {self.call_sign}"}
+            """Return string representation of FlightObject"""
+            attrib_value = f"FlightObject(departure_airport_icao = {self.departure_airport_icao}," \
+                           f"arrival_airport_icao = {self.arrival_airport_icao}," \
+                           f"departure_time = {self.departure_time}," \
+                           f"arrival_time= {self.arrival_time}," \
+                           f"distance = {self.distance}," \
+                           f"departure_airport_iata = {self.departure_airport_iata}" \
+                           f"arrival_airport_iata = {self.arrival_airport_iata}," \
+                           f"call_sign = {self.call_sign})"
             return str(attrib_value)
-
-        def to_pandas_df(self):
-            return pd.DataFrame(self.to_dict())
 
 
 class OpenSkyApi:
+    """Class for interact with OpenSky api"""
     __slots__ = ['_auth', '__sess', '__base_url', '_airports']
 
-    def __iso_to_unix(self, date_iso):
+    def __iso_to_unix(self, date_iso) -> int:
+        """
+        Convert daytime in ISO format to Unix format
+        :param date_iso: Daytime in ISO format %Y-%m-%dT%H:%M:%SZ
+        :return: Daytime in UNIX format
+        """
         date_format = datetime.strptime(date_iso,
                                         "%Y-%m-%dT%H:%M:%SZ")
         unix_time = int(datetime.timestamp(date_format))
         return unix_time
 
     def __init__(self, login=None, password=None):
+        """
+        Initialize OpenSkyApi object
+        :param login: OpenSky login
+        :param password: OpenSky password
+        """
         logging.basicConfig(level=logging.DEBUG, format='%(message)s')
         self._auth = (login, password)
         self.__sess = requests.Session()
         self.__base_url: str = 'https://opensky-network.org/api'
-        self._airports = pd.read_csv('world_airports.csv', names=['Airport ID',
-                                                                  'Name',
-                                                                  'City',
-                                                                  'Country',
-                                                                  'IATA',
-                                                                  'ICAO',
-                                                                  'Latitude',
-                                                                  'Longitude',
-                                                                  'Altitude',
-                                                                  'Timezone',
-                                                                  'DST',
-                                                                  'Tz database time zone',
-                                                                  'Type',
-                                                                  'Source'
-                                                                  ])
+        self._airports = pandas.read_csv('world_airports.csv', names=['Airport ID',
+                                                                      'Name',
+                                                                      'City',
+                                                                      'Country',
+                                                                      'IATA',
+                                                                      'ICAO',
+                                                                      'Latitude',
+                                                                      'Longitude',
+                                                                      'Altitude',
+                                                                      'Timezone',
+                                                                      'DST',
+                                                                      'Tz database time zone',
+                                                                      'Type',
+                                                                      'Source'
+                                                                      ])
 
-    def __get_flights_json(self, operation, params):
+    def __get_flights_json(self, operation, params) -> bytes | None:
+        """
+        Send request to OpenSkyApi and returns Json response
+        :param operation: url postfix
+        :param params: dictionary of request params
+        :return: Json
+        """
         response = self.__sess.get(
             f"{self.__base_url}{operation}",
             auth=self._auth,
@@ -244,7 +272,17 @@ class OpenSkyApi:
             output = None
         return output
 
-    def get_arrivals_by_airport(self, airport, start, end, json_output=True):
+    def get_arrivals_by_airport(self, airport, start, end, json_output=False) -> FlightData | bytes:
+        """
+        Returns FlightData object or if json_output=True json from OpenSky
+         with info about flights arriving at the airport
+        The time interval between start and end time must be smaller than 7 days
+        :param airport: Airport ICAO code
+        :param start: start daytime in ISO
+        :param end: end daytime in ISO
+        :param json_output: Bool
+        :return:FlightData object | json
+        """
         start = self.__iso_to_unix(start)
         end = self.__iso_to_unix(end)
         if start >= end:
@@ -263,7 +301,17 @@ class OpenSkyApi:
             output = FlightData(flights_json)
         return output
 
-    def get_departures_by_airport(self, airport, start, end, json_output=True):
+    def get_departures_by_airport(self, airport, start, end, json_output=False) -> FlightData | bytes:
+        """
+        Returns FlightData object or if json_output=True json from OpenSky
+         with info about flights departing from the airport
+        The time interval between start and end time must be smaller than 7 days
+        :param airport: Airport ICAO code
+        :param start: start daytime in ISO
+        :param end: end daytime in ISO
+        :param json_output: Bool
+        :return:FlightData object | json
+        """
         start = self.__iso_to_unix(start)
         print(start)
         end = self.__iso_to_unix(end)

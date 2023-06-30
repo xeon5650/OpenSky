@@ -1,4 +1,4 @@
-import OpenSky
+import open_sky
 
 api = OpenSky.OpenSkyApi('Zabolotskikh','TT7.622023.')
 p = api.get_departures_by_airport('KPSP','2023-06-15T00:00:00Z','2023-06-22T00:00:00Z',False)
