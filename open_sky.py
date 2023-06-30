@@ -20,11 +20,12 @@ class FlightData:
         try:
             iata = coordinates[coordinates['ICAO'] == icao]['IATA'].tolist()[0]
             return iata
-        except KeyError:
+        except IndexError:
             print("IATA not found")
             return None
 
-    def __unix_to_iso(self, unix_time) -> str:
+    @staticmethod
+    def __unix_to_iso(unix_time) -> str:
         """
         Conver DateTime in unix to time in ISO
         :param unix_time: DateTime in Unix format
@@ -53,8 +54,8 @@ class FlightData:
                           (round(float(to_lat), 3), round(float(to_lon), 3))).km
             distance = round(float(distance), 3)
             return distance
-        except KeyError:
-            print("Airports coordinates not found")
+        except IndexError:
+            print("Airports coordinates not found ",dep_icao, arr_icao)
             return None
 
     __slots__ = ['_airports', '_flights']
@@ -213,7 +214,8 @@ class OpenSkyApi:
     """Class for interact with OpenSky api"""
     __slots__ = ['_auth', '__sess', '__base_url', '_airports']
 
-    def __iso_to_unix(self, date_iso) -> int:
+    @staticmethod
+    def __iso_to_unix(date_iso) -> int:
         """
         Convert daytime in ISO format to Unix format
         :param date_iso: Daytime in ISO format %Y-%m-%dT%H:%M:%SZ
@@ -221,7 +223,9 @@ class OpenSkyApi:
         """
         date_format = datetime.strptime(date_iso,
                                         "%Y-%m-%dT%H:%M:%SZ")
+
         unix_time = int(datetime.timestamp(date_format))
+        print(unix_time)
         return unix_time
 
     def __init__(self, login=None, password=None):
