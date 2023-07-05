@@ -16,12 +16,11 @@ class FlightData:
         :param icao: specified airport ICAO code
         :return: airport IATA code
         """
-        coordinates = self._airports
+        coordinates = self.airports
         try:
             iata = coordinates[coordinates['ICAO'] == icao]['IATA'].tolist()[0]
             return iata
         except IndexError:
-            print("IATA not found")
             return None
 
     @staticmethod
@@ -43,7 +42,7 @@ class FlightData:
         :param arr_icao: Airport icao code
         :return: distance in Km
         """
-        coordinates = self._airports
+        coordinates = self.airports
         try:
             from_lat = coordinates[coordinates['ICAO'] == dep_icao]['Latitude'].tolist()[0]
             from_lon = coordinates[coordinates['ICAO'] == dep_icao]['Longitude'].tolist()[0]
@@ -55,32 +54,31 @@ class FlightData:
             distance = round(float(distance), 3)
             return distance
         except IndexError:
-            print("Airports coordinates not found ",dep_icao, arr_icao)
             return None
 
-    __slots__ = ['_airports', '_flights']
+    __slots__ = ['airports', 'flights']
 
     def __init__(self, flights_json):
         """
         Initialize Flight data object
         :param flights_json: json with flight info
         """
-        self._airports = pandas.read_csv('world_airports.csv', names=['Airport ID',
-                                                                      'Name',
-                                                                      'City',
-                                                                      'Country',
-                                                                      'IATA',
-                                                                      'ICAO',
-                                                                      'Latitude',
-                                                                      'Longitude',
-                                                                      'Altitude',
-                                                                      'Timezone',
-                                                                      'DST',
-                                                                      'Tz database time zone',
-                                                                      'Type',
-                                                                      'Source'
-                                                                      ])
-        self._flights = [None] * len(flights_json)
+        self.airports = pandas.read_csv('world_airports.csv', names=['Airport ID',
+                                                                     'Name',
+                                                                     'City',
+                                                                     'Country',
+                                                                     'IATA',
+                                                                     'ICAO',
+                                                                     'Latitude',
+                                                                     'Longitude',
+                                                                     'Altitude',
+                                                                     'Timezone',
+                                                                     'DST',
+                                                                     'Tz database time zone',
+                                                                     'Type',
+                                                                     'Source'
+                                                                     ])
+        self.flights = [None] * len(flights_json)
         for flight in enumerate(flights_json, start=0):
             flights_data = FlightData.FlightObject()
             dep_icao = flight[1]['estDepartureAirport']
@@ -100,7 +98,7 @@ class FlightData:
         """
         :return: number of elements in FlightData
         """
-        return len(self._flights)
+        return len(self.flights)
 
     def __setitem__(self, flight_number, flight_object):
         """
@@ -109,7 +107,10 @@ class FlightData:
         :param flight_object: FlightObject
         :return: FlightObject
         """
-        self._flights[flight_number] = flight_object
+        self.flights[flight_number] = flight_object
+
+    def extend(self, another_flight_data):
+        self.flights.extend(another_flight_data.flights)
 
     def __getitem__(self, flight_number):
         """
@@ -117,7 +118,7 @@ class FlightData:
         :param flight_number: specified index
         :return: FlightObject
         """
-        return self._flights[flight_number]
+        return self.flights[flight_number]
 
     def to_dict(self) -> dict:
         """
@@ -225,7 +226,6 @@ class OpenSkyApi:
                                         "%Y-%m-%dT%H:%M:%SZ")
 
         unix_time = int(datetime.timestamp(date_format))
-        print(unix_time)
         return unix_time
 
     def __init__(self, login=None, password=None):
@@ -234,7 +234,7 @@ class OpenSkyApi:
         :param login: OpenSky login
         :param password: OpenSky password
         """
-        logging.basicConfig(level=logging.DEBUG, format='%(message)s')
+        logging.basicConfig(level=logging.INFO, format='%(message)s')
         self._auth = (login, password)
         self.__sess = requests.Session()
         self.__base_url: str = 'https://opensky-network.org/api'
@@ -271,7 +271,7 @@ class OpenSkyApi:
 
         else:
             logging.error(
-                "Error occurred:%s", response.status_code
+                "Error occurred: %s", response.status_code
             )
             output = None
         return output
@@ -317,7 +317,6 @@ class OpenSkyApi:
         :return:FlightData object | json
         """
         start = self.__iso_to_unix(start)
-        print(start)
         end = self.__iso_to_unix(end)
         if start >= end:
             raise ValueError("The end daytame must be greater than start.")
